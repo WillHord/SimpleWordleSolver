@@ -8,20 +8,23 @@ def main() -> None:
     word = rand.sample(possibles,1)[0]
     print("First Guess:", word)
     while(True):
-        userinput = input("Was that the word? (y,n)")
-        if userinput.lower() == 'y':
+        userinput = input("Was that the word? (y,n,r,h) ").lower()
+        if userinput == 'h':
+            print("y: yes\nn: no\nr: reroll new word\nh: help\nq: quit")
+            pass
+        elif userinput == 'y':
             print("Word found!")
             break
-        elif userinput.lower() == 'r':
+        elif userinput == 'r':
             possibles.remove(word)
             word = rand.sample(possibles, 1)[0]
             print("New word:",word)
             continue
-        elif userinput.lower() == 'q':
+        elif userinput == 'q':
             print("Exiting...")
             return
         else:
-            tempUsed = set(input("Please enter all letters that are used in the word: "))
+            tempUsed = set(input("Please enter all letters that are used in the word: ").lower())
             used = used.union(tempUsed)
             for i in tempUsed:
                 occurences = [m.start() for m in re.finditer(i, word)]
