@@ -5,7 +5,8 @@ import re
 def main() -> None:
     notUsed, correctPos, wrongPos, used = set(), {}, {}, set()
     possibles = [i for i in english_words_lower_alpha_set if len(i) == 5]
-    word = rand.sample(possibles,1)[0]
+    #word = rand.sample(possibles,1)[0]
+    word = "adieu"
     print("First Guess:", word)
     while(True):
         userinput = input("Was that the word? (y,n,r,h) ").lower()
