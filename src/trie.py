@@ -33,7 +33,7 @@ class Trie:
 
             if word[0] == '_':
                 res = []
-                for i, ch in enumerate(node.children):
+                for ch in node.children:
                     if ch in excluded:
                         continue
                     if ch in included and index in included[ch]:
@@ -46,4 +46,10 @@ class Trie:
                 return [word[0] + w for w in helperSearch(word[1:], node.children[word[0]], index + 1)]
             else:
                 return []
-        return helperSearch(word, self.root, 0)
+        words = helperSearch(word, self.root, 0)
+        # Filter out all words that don't contain the included letters
+        res = []
+        for w in words:
+            if all(c in w for c in included.keys()):
+                res.append(w)
+        return res
