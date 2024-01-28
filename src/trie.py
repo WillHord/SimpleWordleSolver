@@ -21,6 +21,25 @@ class Trie:
                 root.children[c] = TrieNode()
             root = root.children[c]
         root.isEnd = True
+        
+    def included(self, word: str) -> bool:
+        root = self.root
+        for c in word:
+            if c not in root.children:
+                return False
+            root = root.children[c]
+        return root.isEnd
+    
+    def search(self, word: str) -> str:
+        # Search for a word in the trie and return the word if it exists
+        root = self.root
+        for c in word:
+            if c not in root.children:
+                return ""
+            root = root.children[c]
+        if root.isEnd:
+            return word
+    
 
     def atPositions(self, word: str, included: Dict[str, List[int]], excluded: Set[str]) -> List[str]:
         """

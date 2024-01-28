@@ -43,6 +43,10 @@ class WordBank:
         # Given the possible words, return the best guesses
         # best guesses include the most most common letters possible from counter
         possibleWords = self.getPossibleWords(self.word, self.included, self.excluded)
+        print("Possible words:", possibleWords)
+        print("Included:", self.included)
+        print("Excluded:", self.excluded)
+        print("Word:", self.word)
         if not possibleWords:
             return ["No possible words"]
         rankings = self.rankWords(possibleWords, self.counter.most_common(26))
@@ -66,6 +70,9 @@ class WordBank:
             if i not in correct and i not in wrongPos:
                 self.excluded.add(guess[i])
                 
+    def get_word(self, word: str) -> str:
+        return # Wrod from trie
+    
 if __name__ == "__main__":
     from trie import Trie
     
