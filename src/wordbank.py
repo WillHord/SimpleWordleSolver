@@ -1,9 +1,8 @@
 from typing import Dict, Set, List
 from collections import Counter
 import os
-import random 
 
-class WordBank():
+class WordBank:
     def __init__(self) -> None:
         self.trie = Trie()
         self.counter = Counter()
@@ -23,13 +22,7 @@ class WordBank():
     def getPossibleWords(self, word: str, included: Dict[str, List[int]], excluded: Set[str]) -> List[str]:
         return self.trie.atPositions(word, included, excluded)
     
-    def getMostCommon(self):
-        return self.counter.most_common(10)
-    
-    def getCommonInOrder(self):
-        return self.counter.most_common(26)
-    
-    def rankWords(self, words, count):
+    def rankWords(self, words: List[str], count: List[tuple]) -> Dict[int, List[str]]:
         letter_rank = {}
         pos = 0
         for val in range(len(count) - 1, -1, -1):
@@ -46,7 +39,7 @@ class WordBank():
             ranking[rank].append(word)
         return ranking
     
-    def getBestGuess(self):
+    def getBestGuess(self) -> List[str]:
         # Given the possible words, return the best guesses
         # best guesses include the most most common letters possible from counter
         possibleWords = self.getPossibleWords(self.word, self.included, self.excluded)
@@ -82,8 +75,6 @@ if __name__ == "__main__":
     
     # print(wb.getPossibleWords("__o_e", {'o':[3, 1], 'e':[]}, set([i for i in "thrwbmbsclnevk"])))
     
-    # wb.trie.printRoot()
-    
     # Word: _o_ar
     # Included: {'r':[0,2],'o':[3], 'a':[]}
     # Excluded: set([i for i in "thwgebl"])
@@ -92,7 +83,5 @@ if __name__ == "__main__":
     wb.word = "_o_ar"
     print(wb.getBestGuess())
     
-    # print(wb.getMostCommon())
-    # print(wb.counter)
 else:
     from src.trie import Trie

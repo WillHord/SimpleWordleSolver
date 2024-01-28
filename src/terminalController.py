@@ -1,5 +1,4 @@
 import curses
-import time
 from typing import Dict, Set, List
 
 
@@ -227,8 +226,6 @@ class TerminalController:
                 elif letter["color"] == 2:
                     wrongPos.append(i)
             lastGuess = "".join([letter["letter"] for letter in self.board[self.gameround-1].values()])
-            # with open("log.txt", 'a') as f:
-                # f.write(f"=>{lastGuess}\n=>{correct}\n=>{wrongPos}\n")
             self.wordbank.addGuess(lastGuess.lower(), correct, wrongPos)
             self.bestGuesses = self.wordbank.getBestGuess()
             # Print best guesses
@@ -312,14 +309,14 @@ class TerminalController:
         if self.gameround == 6 and not self.check_win():
             self.handle_end(["Oh no you ran out of guesses!", "Better luck next time!"])
             return -1
-        elif self.check_win():
-            self.handle_end(["Congratulations! You won!", "You found the word in " + str(self.gameround) + " guesses!"])
-            return -1
         ans = self.handle_multi_select("Were any letters correct or in the wrong position?", ["Correct", "Wrong position" ])
         if 0 in ans:
             self.selectBox(self.selectCorrect, msg="Select correct letters")
         if 1 in ans:
             self.selectBox(self.selectWrongPos, msg="Select letters in the wrong position")
+        if self.check_win():
+            self.handle_end(["Congratulations! You won!", "You found the word in " + str(self.gameround) + " guesses!"])
+            return -1
     
         self.gameround = min(self.gameround + 1, self.num_rounds)
     
