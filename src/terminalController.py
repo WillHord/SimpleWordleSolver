@@ -13,19 +13,25 @@ def waitForInput(func):
 
 
 class TerminalController:
-    def __init__(self, stdscr) -> None:
+    def __init__(self, stdscr, wordbank = None) -> None:
+        if wordbank:
+            self.wordbank = wordbank
         self.nextLine = 0
         self.stdscr = stdscr
         self.box_index = 0
         self.temp_int, self.temp_str, self.temp_list = 0, "", []
         self.gameround = 0
         self.board = None
+        self.already_guessed = False
+        self.bestGuesses = []
+        
+        self.num_rounds = 6
 
         self.setup()
 
     def init_board(self):
         self.board = [{i: {"letter": "_", "color": 0}
-                       for i in range(5)} for _ in range(6)]
+                       for i in range(5)} for _ in range(self.num_rounds + 1)]
 
     def setup(self):
         self.initialize_colors()
@@ -130,11 +136,9 @@ class TerminalController:
             self.box_index = 0
             return -1
 
-    @waitForInput
+
     def handle_input(self, question):
         # Get user input
-        self.clear()
-        self.print_all_boxes()
         self.print(question + self.temp_str)
         type_, key = self.handle_key_input()
         if key == ord('\n'):
@@ -145,6 +149,7 @@ class TerminalController:
             self.temp_str = self.temp_str[:-1]
         elif type_ == 'CHAR':
             self.temp_str += str(key)
+        return ""
 
     @waitForInput
     def handle_select(self, question, options):
@@ -155,9 +160,7 @@ class TerminalController:
         for i, option in enumerate(options):
             if i == self.temp_int:
                 self.print(f"→ {option}")
-                # self.stdscr.addstr(4 + i, 0, f"→ {option}")
             else:
-                # self.stdscr.addstr(4 + i, 0, f"  {option}")
                 self.print(f"  {option}")
         _, key = self.handle_key_input()
         if key == ord('\n'):
@@ -192,7 +195,6 @@ class TerminalController:
         _, key = self.handle_key_input()
         if key == ord('\n'):
             if self.temp_int == len(options) -1:
-                # Done
                 ans = self.temp_list
                 self.temp_list = []
                 self.temp_int = 0
@@ -210,22 +212,49 @@ class TerminalController:
             self.temp_int = 0
             self.temp_list = []
             return -1
-        
+    
+    @waitForInput
     def askGuess(self):
-        # TODO: Write Guess in boxes
+        # Get best guesses if wordbank is available
+        self.clear()
+        self.print_all_boxes()
+        if self.wordbank:
+            correct = []
+            wrongPos = []
+            for i, letter in enumerate(self.board[self.gameround-1].values()):
+                if letter["color"] == 3:
+                    correct.append(i)
+                elif letter["color"] == 2:
+                    wrongPos.append(i)
+            lastGuess = "".join([letter["letter"] for letter in self.board[self.gameround-1].values()])
+            # with open("log.txt", 'a') as f:
+                # f.write(f"=>{lastGuess}\n=>{correct}\n=>{wrongPos}\n")
+            self.wordbank.addGuess(lastGuess.lower(), correct, wrongPos)
+            self.bestGuesses = self.wordbank.getBestGuess()
+            # Print best guesses
+            self.print(f"Best Guesses: {', '.join(self.bestGuesses)}")
+        else:
+            self.print("No wordbank available")
         # Get user input
         question = "What was your guess? "
         guess = self.handle_input(question)
         while not guess or len(guess) != 5:
-            question = ("Woops! Your guess must be 5 letters long, "
-                        f"your guess was only {str(len(guess) if guess else 0)} long\nTry again:")
+            self.clear()
+            self.print_all_boxes()
+            self.print(f"Best Guesses: {', '.join(self.bestGuesses)}")
+            if self.already_guessed:
+                question = ("Woops! Your guess must be 5 letters long, "
+                        f"your guess was only {str(len(guess) if guess else 0)} long\nTry again: ")
+            else:
+                question = "What was your guess? "
             guess = self.handle_input(question)
+            if guess != "":
+                self.already_guessed = True
         self.addWord(guess.upper())
         return guess
 
     @waitForInput
     def help(self):
-        # self.stdscr.clear()
         self.clear()
         self.print("Help Menu:")
         self.print("""
@@ -251,24 +280,59 @@ class TerminalController:
         return True
     
     @waitForInput
+    def handle_end(self, msgs: List[str]):
+        self.clear()
+        self.print_all_boxes()
+        for msg in msgs:
+            self.print(msg)
+        self.print("Press any key to continue")
+        _, char = self.handle_key_input()
+        if char:
+            self.reset()
+            self.gameround = 1
+            return True  
+    
+    @waitForInput
     def run_game(self):
         self.clear()
         self.print_all_boxes()
         self.askGuess()
+        self.already_guessed = False
+        if self.gameround == 6:
+            # ask if word is correct
+            ans = self.handle_select("Was that the correct word?", ["Yes", "No"])
+            if ans == 0:
+                # set all letters to correct color
+                for letter in self.board[self.gameround].values():
+                    letter["color"] = 3
+                self.clear()
+                self.print_all_boxes()
+                self.handle_end(["Congratulations! You won!", "You found the word in " + str(self.gameround) + " guesses!"])
+                return -1
+        if self.gameround == 6 and not self.check_win():
+            self.handle_end(["Oh no you ran out of guesses!", "Better luck next time!"])
+            return -1
+        elif self.check_win():
+            self.handle_end(["Congratulations! You won!", "You found the word in " + str(self.gameround) + " guesses!"])
+            return -1
         ans = self.handle_multi_select("Were any letters correct or in the wrong position?", ["Correct", "Wrong position" ])
         if 0 in ans:
             self.selectBox(self.selectCorrect, msg="Select correct letters")
         if 1 in ans:
             self.selectBox(self.selectWrongPos, msg="Select letters in the wrong position")
-        
-        if self.gameround == 6 and not self.check_win():
-            self.print("Oh no we couldn't find the word!")
-            self.print("Better luck next time!")
-            return -1
-        self.gameround += 1
+    
+        self.gameround = min(self.gameround + 1, self.num_rounds)
+    
+    def welcome_screen(self):
+        self.print("""
+Welcome to WordleSolver!
+=======================
+To start the solver types 'start' or type 'help' for more info.
+                   """)
     
     def check_commands(self, command):
         # List of standard commands to check against
+        command = command.lower().strip()
         if command in ['start', 's', 'restart', 'r']:
             self.reset()
             self.gameround = 1
@@ -278,13 +342,14 @@ class TerminalController:
             self.help()
             return False
         elif command in ['quit', 'q', 'exit']:  # Quit on 'q'
-            return True
+            exit()
     
     @waitForInput
     def main_loop(self):
         self.clear()
-        command = self.handle_input("Enter a command ('help' for more info): ").lower()
-        return self.check_commands(command)
+        self.welcome_screen()
+        command = self.handle_input("=> ")
+        self.check_commands(command)
 
     def reset(self):
         self.clear()
