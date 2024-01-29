@@ -1,6 +1,6 @@
 # SimpleWordleSolver
 
-An an easy way to cheat in Wordle
+An easy way to cheat in Wordle
 
 ## Description
 SimpleWordleSolver is a Python-based program designed to help player's cheat in the game [Wordle](https://www.nytimes.com/games/wordle/index.html). It utilizes a Trie data structure and the Curses library to effeciently search for the optimal solution and run completely in the Terminal while still having an appealing interface.
