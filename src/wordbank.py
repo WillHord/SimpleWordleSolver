@@ -43,10 +43,6 @@ class WordBank:
         # Given the possible words, return the best guesses
         # best guesses include the most most common letters possible from counter
         possibleWords = self.getPossibleWords(self.word, self.included, self.excluded)
-        print("Possible words:", possibleWords)
-        print("Included:", self.included)
-        print("Excluded:", self.excluded)
-        print("Word:", self.word)
         if not possibleWords:
             return ["No possible words"]
         rankings = self.rankWords(possibleWords, self.counter.most_common(26))

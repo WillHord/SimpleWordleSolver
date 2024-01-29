@@ -1,46 +1,59 @@
 # SimpleWordleSolver
 
-SimpleWordleSolver is an easy way to cheat in Wordle
+An an easy way to cheat in Wordle
+
+## Description
+SimpleWordleSolver is a Python-based program designed to help player's cheat in the game [Wordle](https://www.nytimes.com/games/wordle/index.html). It utilizes a Trie data structure and the Curses library to effeciently search for the optimal solution and run completely in the Terminal while still having an appealing interface.
 
 ## Getting Started
 
 ### Prerequisites
 
-Python 3
+- [Python 3.8](https://www.python.org/) or higher
 
 ### Installing
 
-To install this program run the following commands:
-
+1. Clone the repo
 ```
 git clone git@github.com:WillHord/SimpleWordleSolver.git
-
-pip install english_words
+```
+2. Install required libraries
+```
+pip install -r requirements.txt
 ```
 
+### Executing program
 Once you have made the program you can then run it using the command
 
 ```
-python main.py
+python wordleSolver.py
+```
+The program will start with a welcome screen where you can either type `start` to start solving a wordle puzzle or `help` to view the help menu
+
+```
+Commands:
+    start (s):          Start a new game
+    restart (r):        Restart the current game
+    help (h):           Show this help menu
+    quit (q, exit):     Quit the game
+
+Gameplay:
+    Guess a 5 letter word and then select the letters that are correct or in the wrong position.
+    You will then recieve the 10 best guesses for the next round.
+    Continue until you find the word or run out of guesses.
 ```
 
-The program will give you a word to test, then it will ask if the word was correct. There are a few options you can respond:
+### Testing
+If you want to test and verify the program is working as intended run the command:
 ```
-y: The word was correct and the game is over
-n: The word was incorrect
-h: Help (Shows commands)
-r: Reroll word from possible words
-q: Quit program
+python -m coverage run -m pytest tests
 ```
-
-If the word was not correct it will ask you which letters were correct, please input them as a single string. It will then ask if they were in the correct position answer 'y' if they are in the correct spot. This process will repeat until you quit the program or input that the word was correct.
-
 
 ## Built With
 
 * [Python](https://www.python.org/) - Language Used
 
-## Authors
+## Author
 
 * **Will Hord** - [Willhord](https://github.com/WillHord)
 
