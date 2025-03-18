@@ -1,10 +1,10 @@
-import pytest
-from collections import Counter
 import os
+from collections import Counter
 
-from src.wordbank import WordBank
+import pytest
+
 from src.trie import Trie
-
+from src.wordbank import WordBank
 
 test_path = os.path.join(os.path.dirname(__file__), "dummy.txt")
 
@@ -13,7 +13,7 @@ test_path = os.path.join(os.path.dirname(__file__), "dummy.txt")
 def wordbank_instance():
     # Generate dummy file for testing
     testing_words = ["hello", "world", "apple", "banana", "cherry"]
-    with open(test_path, 'w') as f:
+    with open(test_path, "w") as f:
         for word in testing_words:
             f.write(word + "\n")
     wordbank = WordBank()
@@ -56,15 +56,16 @@ def test_get_possible_words(wordbank_instance):
     # Test getting possible words
     wordbank_instance.readWords(str(test_path))
     wordbank_instance.word = "a___e"
-    wordbank_instance.included = {'a': [0], 'e': [4]}
-    wordbank_instance.excluded = {'b'}
+    wordbank_instance.included = {"a": [0], "e": [4]}
+    wordbank_instance.excluded = {"b"}
     possible_words = wordbank_instance.getPossibleWords(
-        wordbank_instance.word, wordbank_instance.included, wordbank_instance.excluded)
-    assert possible_words == ['apple']
+        wordbank_instance.word, wordbank_instance.included, wordbank_instance.excluded
+    )
+    assert possible_words == ["apple"]
     possible_words = wordbank_instance.getPossibleWords("_____", {}, set())
-    assert possible_words == ['hello', 'world', 'apple']
+    assert possible_words == ["hello", "world", "apple"]
     possible_words = wordbank_instance.getPossibleWords("______", {}, set())
-    assert possible_words == ['banana', 'cherry']
+    assert possible_words == ["banana", "cherry"]
 
 
 def test_rank_words(wordbank_instance):
@@ -72,7 +73,7 @@ def test_rank_words(wordbank_instance):
     words = ["hello", "world"]
     count = Counter("helloworld")
     ranked = wordbank_instance.rankWords(words, count.most_common(26))
-    assert ranked == {22: ['hello'], 19: ['world']}
+    assert ranked == {22: ["hello"], 19: ["world"]}
 
 
 def test_get_best_guess(wordbank_instance):
@@ -83,7 +84,7 @@ def test_get_best_guess(wordbank_instance):
     wordbank_instance.included = {}
     wordbank_instance.excluded = set()
     best_guess = wordbank_instance.getBestGuess()
-    assert best_guess == ['hello', 'world', 'apple']
+    assert best_guess == ["hello", "world", "apple"]
 
     # Test no possible words
     wordbank_instance.word = "_____"
@@ -97,5 +98,5 @@ def test_add_guess(wordbank_instance):
     # Test adding a guess
     wordbank_instance.addGuess("apple", [0, 2], [4])
     assert wordbank_instance.word == "a_p__"
-    assert wordbank_instance.included == {'a': [], 'p': [], 'e': [4]}
-    assert wordbank_instance.excluded == {'l', 'p'}
+    assert wordbank_instance.included == {"a": [], "p": [], "e": [4]}
+    assert wordbank_instance.excluded == {"l", "p"}
